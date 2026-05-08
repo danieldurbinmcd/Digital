@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Digital Leaderboard — California — April 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0a0e1a;
+  --surface:#111827;
+  --surface2:#1a2235;
+  --surface3:#222d42;
+  --border:#2a3550;
+  --border2:#3a4a68;
+  --text:#e8eaf0;
+  --muted:#7a8aaa;
+  --dim:#4a5a7a;
+  --cyan:#00d4ff;
+  --cyan2:#0099cc;
+  --cyan-glow:rgba(0,212,255,0.15);
+  --cyan-dim:rgba(0,212,255,0.06);
+  --green:#00e676;
+  --green-bg:rgba(0,230,118,0.08);
+  --red:#ff5252;
+  --red-bg:rgba(255,82,82,0.08);
+  --amber:#ffab40;
+  --amber-bg:rgba(255,171,64,0.08);
+  --gold:#ffd700;
+  --gold-bg:rgba(255,215,0,0.08);
+}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* Background grid */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+.page{max-width:1200px;margin:0 auto;padding:32px 24px 80px;position:relative;z-index:1;}
+
+/* Header */
+.header{margin-bottom:36px;position:relative;}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+.header-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;}
+.header-title{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.02em;}
+.header-title span{color:var(--cyan);}
+.header-meta{text-align:right;}
+.header-period{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:.1em;}
+.header-stats{display:flex;gap:16px;justify-content:flex-end;}
+.h-stat{text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;}
+.h-stat-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--cyan);}
+.h-stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;}
+.header-line{height:1px;background:linear-gradient(90deg,var(--cyan) 0%,rgba(0,212,255,0.3) 30%,transparent 70%);}
+
+/* Summary strip */
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;transition:border-color .2s;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cyan);transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.kpi-card:hover{border-color:var(--border2);}
+.kpi-card:hover::before{transform:scaleX(1);}
+.kpi-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;}
+.kpi-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--text);line-height:1;}
+.kpi-val.cyan{color:var(--cyan);}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:5px;font-family:'JetBrains Mono',monospace;}
+
+/* Nav tabs */
+.nav{display:flex;gap:2px;margin-bottom:28px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;}
+.nav-btn{flex:1;text-align:center;padding:10px 12px;font-size:12px;font-weight:600;border-radius:9px;cursor:pointer;color:var(--muted);transition:all .18s;background:transparent;border:none;font-family:'Space Grotesk',sans-serif;letter-spacing:.02em;}
+.nav-btn:hover{color:var(--text);background:var(--surface2);}
+.nav-btn.active{background:var(--cyan);color:#000;font-weight:700;}
+.tab-page{display:none;}
+.tab-page.active{display:block;}
+
+/* Section titles */
+.sec-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--cyan);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent);}
+
+/* Ranking table */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--surface2);}
+thead th{padding:10px 14px;text-align:left;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);white-space:nowrap;border-bottom:1px solid var(--border);}
+thead th.r{text-align:right;}
+thead th.c{text-align:center;}
+tbody tr{border-top:1px solid var(--border);transition:background .12s;}
+tbody tr:hover{background:var(--cyan-dim);}
+tbody td{padding:11px 14px;font-size:12px;vertical-align:middle;}
+tbody td.r{text-align:right;}
+tbody td.c{text-align:center;}
+tfoot tr{background:var(--surface2);border-top:2px solid var(--border2);}
+tfoot td{padding:10px 14px;font-size:11px;font-weight:600;color:var(--muted);}
+tfoot td.r{text-align:right;}
+
+/* Rank number */
+.rank-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);width:32px;}
+.rank-1 .rank-num{color:var(--gold);}
+.rank-2 .rank-num{color:#c0c0c0;}
+.rank-3 .rank-num{color:#cd7f32;}
+
+/* Loc chip */
+.loc-chip{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);}
+
+/* Sup chip */
+.sup-chip{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;background:var(--surface3);color:var(--muted);border:1px solid var(--border);}
+
+/* Metric values */
+.dig-val{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);}
+.ksk-val{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+.var-pos{color:var(--green);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px;}
+.var-neg-sm{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:11px;}
+.var-neg{color:var(--red);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px;}
+.var-flat{color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:11px;}
+
+/* Digital bar */
+.dig-bar-wrap{display:flex;align-items:center;gap:8px;}
+.dig-bar{flex:1;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;min-width:60px;}
+.dig-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--cyan2),var(--cyan));}
+.ksk-bar-fill{background:linear-gradient(90deg,#7b4fff,#a78bfa);}
+
+/* Row tiers */
+.tier-top{background:rgba(0,212,255,0.04);}
+.tier-bot{background:rgba(255,82,82,0.03);}
+
+/* Supervisor cards */
+.sup-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.sup-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.sup-card-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.sup-card-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);}
+.sup-card-rank{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:var(--cyan);}
+.sup-card-avg{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:2px;}
+.sup-loc-row{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;border-top:1px solid var(--border);font-size:11px;}
+.sup-loc-row:first-of-type{border-top:none;}
+.sup-loc-num{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--text);}
+.sup-loc-dig{font-family:'JetBrains Mono',monospace;color:var(--cyan);font-size:12px;font-weight:600;}
+.sup-rank-badge{font-size:9px;font-family:'JetBrains Mono',monospace;padding:1px 5px;border-radius:3px;background:var(--surface3);color:var(--muted);}
+
+/* 80/20 split */
+.split-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.split-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.split-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.split-hdr-title{font-size:13px;font-weight:600;color:var(--text);}
+.split-badge-top{font-size:9px;padding:3px 8px;border-radius:20px;background:rgba(0,230,118,0.12);color:var(--green);border:1px solid rgba(0,230,118,0.2);font-family:'JetBrains Mono',monospace;}
+.split-badge-bot{font-size:9px;padding:3px 8px;border-radius:20px;background:rgba(255,82,82,0.1);color:var(--red);border:1px solid rgba(255,82,82,0.2);font-family:'JetBrains Mono',monospace;}
+.split-row{display:grid;grid-template-columns:28px 70px 1fr auto;align-items:center;gap:10px;padding:10px 18px;border-top:1px solid var(--border);}
+.split-row:first-of-type{border-top:none;}
+.split-rank{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);}
+.split-loc{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);}
+.split-sup{font-size:10px;color:var(--muted);}
+.split-score{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--cyan);}
+.split-score.red{color:var(--red);}
+
+/* Opportunity call-outs */
+.insight-strip{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
+.insight-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;}
+.insight-card.urgent{border-left:3px solid var(--red);}
+.insight-card.good{border-left:3px solid var(--green);}
+.insight-card.warn{border-left:3px solid var(--amber);}
+.insight-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;}
+.insight-card.urgent .insight-tag{color:var(--red);}
+.insight-card.good .insight-tag{color:var(--green);}
+.insight-card.warn .insight-tag{color:var(--amber);}
+.insight-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.insight-body{font-size:12px;color:var(--muted);line-height:1.7;}
+.insight-body strong{color:var(--text);}
+
+/* Patch tab */
+.patch-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.patch-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.patch-hdr{padding:14px 18px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:baseline;}
+.patch-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--cyan);}
+.patch-avg-dig{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+table.patch-table{width:100%;border-collapse:collapse;}
+.patch-table th{padding:8px 14px;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);background:var(--surface2);text-align:left;border-bottom:1px solid var(--border);}
+.patch-table th.r{text-align:right;}
+.patch-table td{padding:9px 14px;font-size:11px;border-top:1px solid var(--border);vertical-align:middle;}
+.patch-table td.r{text-align:right;}
+
+/* Goal bar */
+.goal-bar-wrap{display:flex;flex-direction:column;gap:2px;}
+.goal-bar-track{height:3px;background:var(--surface3);border-radius:2px;overflow:hidden;}
+.goal-bar-fill{height:100%;border-radius:2px;}
+.goal-bar-labels{display:flex;justify-content:space-between;font-size:8px;color:var(--dim);}
+
+@media(max-width:900px){
+  .kpi-strip{grid-template-columns:repeat(2,1fr);}
+  .sup-grid{grid-template-columns:repeat(2,1fr);}
+  .split-grid,.insight-strip,.patch-grid{grid-template-columns:1fr;}
+  .header-title{font-size:30px;}
+}
+@media(max-width:600px){
+  .kpi-strip{grid-template-columns:1fr 1fr;}
+  .nav{flex-wrap:wrap;}
+  .table-wrap{overflow-x:auto;}
+  table{min-width:600px;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-label">California &mdash; Digital Performance</div>
+        <div class="header-title">Digital<span>.</span><br>Leaderboard</div>
+      </div>
+      <div class="header-meta">
+        <div class="header-period">APRIL 2026</div>
+        <div class="header-stats">
+          <div class="h-stat"><div class="h-stat-val">35</div><div class="h-stat-lbl">Restaurants</div></div>
+          <div class="h-stat"><div class="h-stat-val">8</div><div class="h-stat-lbl">Supervisors</div></div>
+          <div class="h-stat"><div class="h-stat-val">49.3%</div><div class="h-stat-lbl">Avg Digital</div></div>
+          <div class="h-stat"><div class="h-stat-val">76.1%</div><div class="h-stat-lbl">Avg Kiosk</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="header-line"></div>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Top Digital Restaurant</div>
+      <div class="kpi-val cyan">78.3%</div>
+      <div class="kpi-sub">16753 &mdash; Raymond Gallardo</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Top Kiosk Restaurant</div>
+      <div class="kpi-val cyan">99.5%</div>
+      <div class="kpi-sub">37958 &mdash; Raymond Gallardo</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Top Supervisor (Digital avg)</div>
+      <div class="kpi-val cyan">55.0%</div>
+      <div class="kpi-sub">Frances Alvarado &mdash; 4 locations</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Biggest Opportunity</div>
+      <div class="kpi-val" style="color:var(--red);">24.1%</div>
+      <div class="kpi-sub">15023 &mdash; Ray Marez &mdash; Kiosk 0%</div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav">
+    <button class="nav-btn active" onclick="showTab('ranking',this)">Rankings</button>
+    <button class="nav-btn" onclick="showTab('data',this)">All Data</button>
+    <button class="nav-btn" onclick="showTab('split',this)">80 / 20</button>
+    <button class="nav-btn" onclick="showTab('patches',this)">Supervisor Patches</button>
+  </div>
+
+  <!-- ═══ PAGE: RANKING ═══ -->
+  <div class="tab-page active" id="page-ranking">
+
+    <div class="sec-title">Restaurant Rankings &mdash; Digital % of Sales</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Location</th>
+            <th>Supervisor</th>
+            <th class="r">Digital %</th>
+            <th>vs Goal</th>
+            <th class="r">Kiosk %</th>
+            <th>Kiosk Var</th>
+          </tr>
+        </thead>
+        <tbody id="rankBody">
+          <!-- rows built by JS -->
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;">Portfolio Average</td>
+            <td class="r" style="font-family:'JetBrains Mono',monospace;color:var(--cyan);">49.3%</td>
+            <td></td>
+            <td class="r" style="font-family:'JetBrains Mono',monospace;color:#a78bfa;">76.1%</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="sec-title">Key Insights &mdash; April 2026</div>
+    <div class="insight-strip">
+      <div class="insight-card urgent">
+        <div class="insight-tag">&#9888; Urgent Attention</div>
+        <div class="insight-title">15023 — Digital 24.1%, Kiosk 0%</div>
+        <div class="insight-body">The lowest digital performer in the portfolio by a significant margin. Kiosk recorded at 0% — this may indicate a kiosk outage, configuration issue, or a crew that has stopped directing guests. A hands-on visit is needed this week. <strong>Ray Marez</strong> should investigate the root cause before month-end.</div>
+      </div>
+      <div class="insight-card urgent">
+        <div class="insight-tag">&#9888; Trend Watch</div>
+        <div class="insight-title">Portfolio-wide Digital decline</div>
+        <div class="insight-body">28 of 35 locations showed negative Digital variance vs goal in April. The portfolio average of 49.3% is below the implied target range. <strong>Kiosk performance</strong> is stronger (76.1% avg) suggesting the lobby adoption effort is working but digital channel conversion needs focus.</div>
+      </div>
+      <div class="insight-card good">
+        <div class="insight-tag">&#10003; Best Practice</div>
+        <div class="insight-title">16753 leads at 78.3% Digital</div>
+        <div class="insight-body">Raymond Gallardo's 16753 leads the portfolio in Digital % by nearly 19 points over the next location. Combined with 97.3% Kiosk, this location is the gold standard. <strong>Schedule a peer visit</strong> — what is this crew doing differently in the first 30 seconds with every guest?</div>
+      </div>
+      <div class="insight-card warn">
+        <div class="insight-tag">&#9650; Kiosk Star</div>
+        <div class="insight-title">37958 — 99.5% Kiosk, but Digital lags</div>
+        <div class="insight-body">Martha Perez at 37958 achieves near-perfect Kiosk adoption (99.5%) but Digital % sits at 40.4% — 32nd in the portfolio. This gap suggests guests are using kiosk but not converting to digital channels. The opportunity: <strong>coach the app/mobile order conversation at kiosk</strong>.</div>
+      </div>
+    </div>
+
+    <div class="sec-title">Supervisor Summary</div>
+    <div class="sup-grid" id="supGrid">
+      <!-- built by JS -->
+    </div>
+
+  </div>
+
+  <!-- ═══ PAGE: DATA ═══ -->
+  <div class="tab-page" id="page-data">
+    <div class="sec-title">Full Data Table &mdash; All 35 Locations</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Location</th>
+            <th>Supervisor</th>
+            <th class="r">Digital %</th>
+            <th class="r">Goal</th>
+            <th class="r">Variance</th>
+            <th class="r">Kiosk %</th>
+            <th class="r">Kiosk Goal</th>
+            <th class="r">Kiosk Var</th>
+          </tr>
+        </thead>
+        <tbody id="dataBody">
+          <!-- built by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: 80/20 ═══ -->
+  <div class="tab-page" id="page-split">
+    <div class="sec-title">80 / 20 &mdash; Digital % of Sales</div>
+    <div class="split-grid">
+      <div class="split-card">
+        <div class="split-hdr"><div class="split-hdr-title">Top 5 &mdash; Digital %</div><span class="split-badge-top">Leaders</span></div>
+        <div class="split-row"><div class="split-rank">1</div><div class="split-loc">16753</div><div><div>Raymond Gallardo</div></div><div class="split-score">78.3%</div></div>
+        <div class="split-row"><div class="split-rank">2</div><div class="split-loc">26499</div><div><div>Mike &amp; Estebani</div></div><div class="split-score">59.5%</div></div>
+        <div class="split-row"><div class="split-rank">3</div><div class="split-loc">1313</div><div><div>Frances Alvarado</div></div><div class="split-score">59.4%</div></div>
+        <div class="split-row"><div class="split-rank">4</div><div class="split-loc">22694</div><div><div>Michelle Uribe</div></div><div class="split-score">58.9%</div></div>
+        <div class="split-row"><div class="split-rank">5</div><div class="split-loc">7433</div><div><div>Ray Marez</div></div><div class="split-score">55.8%</div></div>
+      </div>
+      <div class="split-card">
+        <div class="split-hdr"><div class="split-hdr-title">Bottom 5 &mdash; Digital %</div><span class="split-badge-bot">Needs Focus</span></div>
+        <div class="split-row"><div class="split-rank">35</div><div class="split-loc">15023</div><div><div>Ray Marez</div></div><div class="split-score red">24.1%</div></div>
+        <div class="split-row"><div class="split-rank">34</div><div class="split-loc">17470</div><div><div>Sylvia Corona</div></div><div class="split-score red">35.0%</div></div>
+        <div class="split-row"><div class="split-rank">33</div><div class="split-loc">37958</div><div><div>Raymond Gallardo</div></div><div class="split-score red">40.4%</div></div>
+        <div class="split-row"><div class="split-rank">32</div><div class="split-loc">7932</div><div><div>Elton Perez</div></div><div class="split-score red">42.7%</div></div>
+        <div class="split-row"><div class="split-rank">31</div><div class="split-loc">21383</div><div><div>Sylvia Corona</div></div><div class="split-score red">43.4%</div></div>
+      </div>
+      <div class="split-card">
+        <div class="split-hdr"><div class="split-hdr-title">Top 5 &mdash; Kiosk %</div><span class="split-badge-top">Leaders</span></div>
+        <div class="split-row"><div class="split-rank">1</div><div class="split-loc">37958</div><div><div>Raymond Gallardo</div></div><div class="split-score">99.5%</div></div>
+        <div class="split-row"><div class="split-rank">2</div><div class="split-loc">24497</div><div><div>Elton Perez</div></div><div class="split-score">98.6%</div></div>
+        <div class="split-row"><div class="split-rank">3</div><div class="split-loc">16753</div><div><div>Raymond Gallardo</div></div><div class="split-score">97.3%</div></div>
+        <div class="split-row"><div class="split-rank">4</div><div class="split-loc">24797</div><div><div>Michelle Uribe</div></div><div class="split-score">96.3%</div></div>
+        <div class="split-row"><div class="split-rank">5</div><div class="split-loc">32107</div><div><div>Mona Aguilar</div></div><div class="split-score">95.6%</div></div>
+      </div>
+      <div class="split-card">
+        <div class="split-hdr"><div class="split-hdr-title">Bottom 5 &mdash; Kiosk %</div><span class="split-badge-bot">Needs Focus</span></div>
+        <div class="split-row"><div class="split-rank">35</div><div class="split-loc">15023</div><div><div>Ray Marez</div></div><div class="split-score red">0.0%</div></div>
+        <div class="split-row"><div class="split-rank">34</div><div class="split-loc">21383</div><div><div>Sylvia Corona</div></div><div class="split-score red">39.5%</div></div>
+        <div class="split-row"><div class="split-rank">33</div><div class="split-loc">38349</div><div><div>Sylvia Corona</div></div><div class="split-score red">42.9%</div></div>
+        <div class="split-row"><div class="split-rank">32</div><div class="split-loc">17470</div><div><div>Sylvia Corona</div></div><div class="split-score red">45.2%</div></div>
+        <div class="split-row"><div class="split-rank">31</div><div class="split-loc">25117</div><div><div>Sylvia Corona</div></div><div class="split-score red">52.4%</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: PATCHES ═══ -->
+  <div class="tab-page" id="page-patches">
+    <div class="sec-title">Supervisor Patches &mdash; Digital &amp; Kiosk by Location</div>
+    <div class="patch-grid" id="patchGrid">
+      <!-- built by JS -->
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('.tab-page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+var DATA = [
+  {rank:1, loc:'16753', sup:'Raymond Gallardo', dig:78.3, goal:79.3, dvar:-1.0, ksk:97.3, kgoal:90.0, kvar:7.3},
+  {rank:2, loc:'26499', sup:'Mike & Estebani',  dig:59.5, goal:62.1, dvar:-2.6, ksk:79.6, kgoal:81.6, kvar:-2.0},
+  {rank:3, loc:'1313',  sup:'Frances Alvarado', dig:59.4, goal:64.6, dvar:-5.2, ksk:71.1, kgoal:76.4, kvar:-5.3},
+  {rank:4, loc:'22694', sup:'Michelle Uribe',   dig:58.9, goal:56.6, dvar:2.3,  ksk:72.4, kgoal:77.0, kvar:-4.6},
+  {rank:5, loc:'7433',  sup:'Ray Marez',        dig:55.8, goal:59.5, dvar:-3.7, ksk:88.7, kgoal:90.0, kvar:-1.3},
+  {rank:6, loc:'11744', sup:'Frances Alvarado', dig:55.2, goal:57.9, dvar:-2.7, ksk:93.9, kgoal:90.0, kvar:3.9},
+  {rank:7, loc:'7703',  sup:'Ray Marez',        dig:55.1, goal:53.1, dvar:2.0,  ksk:85.2, kgoal:69.5, kvar:15.7},
+  {rank:8, loc:'10865', sup:'Raymond Gallardo', dig:53.4, goal:54.7, dvar:-1.3, ksk:89.4, kgoal:90.0, kvar:-0.6},
+  {rank:9, loc:'27493', sup:'Frances Alvarado', dig:52.3, goal:56.0, dvar:-3.7, ksk:76.9, kgoal:86.6, kvar:-9.7},
+  {rank:10,loc:'24797', sup:'Michelle Uribe',   dig:51.5, goal:53.6, dvar:-2.1, ksk:96.3, kgoal:90.0, kvar:6.3},
+  {rank:11,loc:'24135', sup:'Michelle Uribe',   dig:51.3, goal:53.8, dvar:-2.5, ksk:95.5, kgoal:90.0, kvar:5.5},
+  {rank:12,loc:'24497', sup:'Elton Perez',      dig:50.2, goal:53.5, dvar:-3.3, ksk:98.6, kgoal:90.0, kvar:8.6},
+  {rank:13,loc:'22228', sup:'Mona Aguilar',     dig:50.2, goal:48.3, dvar:1.9,  ksk:75.5, kgoal:71.8, kvar:3.7},
+  {rank:14,loc:'13669', sup:'Michelle Uribe',   dig:49.9, goal:50.8, dvar:-0.9, ksk:73.6, kgoal:73.4, kvar:0.2},
+  {rank:15,loc:'40959', sup:'Raymond Gallardo', dig:49.5, goal:50.5, dvar:-1.0, ksk:83.4, kgoal:79.8, kvar:3.6},
+  {rank:16,loc:'32107', sup:'Mona Aguilar',     dig:49.3, goal:49.1, dvar:0.2,  ksk:95.6, kgoal:90.0, kvar:5.6},
+  {rank:17,loc:'4235',  sup:'Elton Perez',      dig:48.8, goal:54.6, dvar:-5.8, ksk:63.3, kgoal:75.8, kvar:-12.5},
+  {rank:18,loc:'11529', sup:'Sylvia Corona',    dig:48.8, goal:51.1, dvar:-2.3, ksk:54.8, kgoal:58.1, kvar:-3.3},
+  {rank:19,loc:'38616', sup:'Mona Aguilar',     dig:48.4, goal:51.5, dvar:-3.1, ksk:78.6, kgoal:82.4, kvar:-3.8},
+  {rank:20,loc:'36285', sup:'Frances Alvarado', dig:47.5, goal:53.3, dvar:-5.8, ksk:79.1, kgoal:82.4, kvar:-3.3},
+  {rank:21,loc:'10150', sup:'Mona Aguilar',     dig:47.2, goal:51.5, dvar:-4.3, ksk:76.0, kgoal:82.4, kvar:-6.4},
+  {rank:22,loc:'6853',  sup:'Mona Aguilar',     dig:47.0, goal:49.5, dvar:-2.5, ksk:73.1, kgoal:76.4, kvar:-3.3},
+  {rank:23,loc:'11124', sup:'Elton Perez',      dig:46.3, goal:49.8, dvar:-3.5, ksk:75.0, kgoal:84.8, kvar:-9.8},
+  {rank:24,loc:'39954', sup:'Mike & Estebani',  dig:45.3, goal:45.8, dvar:-0.5, ksk:87.9, kgoal:88.0, kvar:-0.1},
+  {rank:25,loc:'12566', sup:'Raymond Gallardo', dig:45.2, goal:48.4, dvar:-3.2, ksk:53.3, kgoal:60.6, kvar:-7.3},
+  {rank:26,loc:'2327',  sup:'Michelle Uribe',   dig:44.8, goal:46.8, dvar:-2.0, ksk:79.0, kgoal:74.1, kvar:4.9},
+  {rank:27,loc:'7013',  sup:'Ray Marez',        dig:44.8, goal:45.0, dvar:-0.2, ksk:78.7, kgoal:78.0, kvar:0.7},
+  {rank:28,loc:'6891',  sup:'Sylvia Corona',    dig:44.5, goal:47.0, dvar:-2.5, ksk:57.0, kgoal:55.9, kvar:1.1},
+  {rank:29,loc:'38349', sup:'Sylvia Corona',    dig:44.1, goal:43.8, dvar:0.3,  ksk:42.9, kgoal:44.0, kvar:-1.1},
+  {rank:30,loc:'25117', sup:'Sylvia Corona',    dig:43.8, goal:47.6, dvar:-3.8, ksk:52.4, kgoal:55.8, kvar:-3.4},
+  {rank:31,loc:'21383', sup:'Sylvia Corona',    dig:43.4, goal:45.1, dvar:-1.7, ksk:39.5, kgoal:46.7, kvar:-7.2},
+  {rank:32,loc:'7932',  sup:'Elton Perez',      dig:42.7, goal:45.1, dvar:-2.4, ksk:67.6, kgoal:68.0, kvar:-0.4},
+  {rank:33,loc:'37958', sup:'Raymond Gallardo', dig:40.4, goal:44.5, dvar:-4.1, ksk:99.5, kgoal:90.0, kvar:9.5},
+  {rank:34,loc:'17470', sup:'Sylvia Corona',    dig:35.0, goal:38.7, dvar:-3.7, ksk:45.2, kgoal:52.3, kvar:-7.1},
+  {rank:35,loc:'15023', sup:'Ray Marez',        dig:24.1, goal:30.8, dvar:-6.7, ksk:0.0,  kgoal:0.0,  kvar:0.0},
+];
+
+var SUPS = [
+  {name:'Raymond Gallardo', locs:['16753','10865','40959','12566','37958'], short:'Raymond'},
+  {name:'Frances Alvarado', locs:['1313','11744','27493','36285'], short:'Frances'},
+  {name:'Michelle Uribe',   locs:['22694','24797','24135','13669','2327'], short:'Michelle'},
+  {name:'Mike & Estebani',  locs:['26499','39954'], short:'Mike & Est'},
+  {name:'Ray Marez',        locs:['7433','7703','7013','15023'], short:'Ray'},
+  {name:'Elton Perez',      locs:['24497','4235','11124','7932'], short:'Elton'},
+  {name:'Mona Aguilar',     locs:['22228','32107','38616','10150','6853'], short:'Mona'},
+  {name:'Sylvia Corona',    locs:['11529','6891','38349','25117','21383','17470'], short:'Sylvia'},
+];
+
+function varClass(v){
+  if(v>0) return 'var-pos';
+  if(v>=-2) return 'var-flat';
+  if(v>=-4) return 'var-neg-sm';
+  return 'var-neg';
+}
+function varStr(v){ return (v>=0?'+':'')+v.toFixed(1)+'%'; }
+function barW(pct,max){ return Math.min(100,Math.round(pct/max*100))+'%'; }
+
+// Build ranking table
+var rb = document.getElementById('rankBody');
+DATA.forEach(function(r){
+  var isTop = r.rank<=7; var isBot=r.rank>=29;
+  var tr=document.createElement('tr');
+  tr.className = isTop?'tier-top':isBot?'tier-bot':'';
+  tr.innerHTML=
+    '<td class="rank-num">'+
+      (r.rank===1?'<span style="color:var(--gold)">01</span>':
+       r.rank===2?'<span style="color:#c0c0c0">02</span>':
+       r.rank===3?'<span style="color:#cd7f32">03</span>':
+       (r.rank<10?'0':'')+r.rank)+
+    '</td>'+
+    '<td><span class="loc-chip">'+r.loc+'</span></td>'+
+    '<td><span class="sup-chip">'+r.sup+'</span></td>'+
+    '<td class="r">'+
+      '<div class="dig-bar-wrap">'+
+        '<div class="dig-bar"><div class="dig-bar-fill" style="width:'+barW(r.dig,80)+'"></div></div>'+
+        '<span class="dig-val">'+r.dig.toFixed(1)+'%</span>'+
+      '</div>'+
+    '</td>'+
+    '<td><div class="goal-bar-wrap">'+
+      '<div class="goal-bar-track"><div class="goal-bar-fill" style="width:'+barW(Math.max(0,r.dig),Math.max(r.dig,r.goal))+'%;background:'+( r.dvar>=0?'var(--green)':'var(--red)')+'"></div></div>'+
+      '<div class="goal-bar-labels"><span>'+r.goal.toFixed(1)+'% goal</span><span class="'+varClass(r.dvar)+'">'+varStr(r.dvar)+'</span></div>'+
+    '</div></td>'+
+    '<td class="r">'+
+      '<div class="dig-bar-wrap">'+
+        '<div class="dig-bar"><div class="ksk-bar-fill" style="width:'+barW(r.ksk,100)+'"></div></div>'+
+        '<span class="ksk-val">'+r.ksk.toFixed(1)+'%</span>'+
+      '</div>'+
+    '</td>'+
+    '<td><span class="'+varClass(r.kvar)+'">'+varStr(r.kvar)+'</span></td>';
+  rb.appendChild(tr);
+});
+
+// Build full data table
+var db = document.getElementById('dataBody');
+DATA.forEach(function(r){
+  var tr=document.createElement('tr');
+  tr.innerHTML=
+    '<td class="rank-num">'+(r.rank<10?'0':'')+r.rank+'</td>'+
+    '<td><span class="loc-chip">'+r.loc+'</span></td>'+
+    '<td><span class="sup-chip">'+r.sup+'</span></td>'+
+    '<td class="r" style="font-family:\'JetBrains Mono\',monospace;font-size:13px;font-weight:600;color:var(--cyan);">'+r.dig.toFixed(1)+'%</td>'+
+    '<td class="r" style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">'+r.goal.toFixed(1)+'%</td>'+
+    '<td class="r"><span class="'+varClass(r.dvar)+'">'+varStr(r.dvar)+'</span></td>'+
+    '<td class="r" style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:#a78bfa;">'+r.ksk.toFixed(1)+'%</td>'+
+    '<td class="r" style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--muted);">'+r.kgoal.toFixed(1)+'%</td>'+
+    '<td class="r"><span class="'+varClass(r.kvar)+'">'+varStr(r.kvar)+'</span></td>';
+  db.appendChild(tr);
+});
+
+// Build supervisor grid
+var sg = document.getElementById('supGrid');
+SUPS.forEach(function(s,si){
+  var locs = s.locs.map(function(loc){ return DATA.find(function(d){return d.loc===loc;}); }).filter(Boolean);
+  var avgDig = locs.reduce(function(a,b){return a+b.dig;},0)/locs.length;
+  var avgKsk = locs.reduce(function(a,b){return a+b.ksk;},0)/locs.length;
+  locs.sort(function(a,b){return b.dig-a.dig;});
+
+  var card = document.createElement('div');
+  card.className = 'sup-card';
+  var inner = '<div class="sup-card-header">'+
+    '<div>'+
+      '<div class="sup-card-name">'+s.short+'</div>'+
+      '<div class="sup-card-avg">'+locs.length+' locations &middot; Avg Digital '+avgDig.toFixed(1)+'% &middot; Kiosk '+avgKsk.toFixed(1)+'%</div>'+
+    '</div>'+
+    '<div style="text-align:right;">'+
+      '<div class="sup-card-rank">'+avgDig.toFixed(1)+'%</div>'+
+      '<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Digital avg</div>'+
+    '</div>'+
+  '</div>';
+  locs.forEach(function(r,i){
+    inner += '<div class="sup-loc-row">'+
+      '<span class="sup-loc-num">'+r.loc+'</span>'+
+      '<div class="dig-bar" style="flex:1;margin:0 8px;"><div class="dig-bar-fill" style="width:'+barW(r.dig,80)+'"></div></div>'+
+      '<span class="sup-loc-dig">'+r.dig.toFixed(1)+'%</span>'+
+      '<span class="sup-rank-badge" style="margin-left:8px;">#'+r.rank+'</span>'+
+    '</div>';
+  });
+  card.innerHTML = inner;
+  sg.appendChild(card);
+});
+
+// Build patch grid
+var pg = document.getElementById('patchGrid');
+SUPS.forEach(function(s){
+  var locs = s.locs.map(function(loc){return DATA.find(function(d){return d.loc===loc;});}).filter(Boolean);
+  locs.sort(function(a,b){return b.dig-a.dig;});
+  var avgDig = locs.reduce(function(a,b){return a+b.dig;},0)/locs.length;
+
+  var card = document.createElement('div');
+  card.className = 'patch-card';
+  var inner = '<div class="patch-hdr">'+
+    '<div class="patch-name">'+s.name+'</div>'+
+    '<div class="patch-avg-dig">Avg '+avgDig.toFixed(1)+'% Digital &middot; '+locs.length+' locs</div>'+
+  '</div>'+
+  '<table class="patch-table">'+
+  '<thead><tr><th>Loc</th><th class="r">Digital %</th><th class="r">vs Goal</th><th class="r">Kiosk %</th><th class="r">Kiosk Var</th></tr></thead>'+
+  '<tbody>';
+  locs.forEach(function(r){
+    inner += '<tr>'+
+      '<td style="font-family:\'JetBrains Mono\',monospace;font-weight:600;color:var(--text);">'+r.loc+'</td>'+
+      '<td class="r" style="font-family:\'JetBrains Mono\',monospace;color:var(--cyan);font-weight:600;">'+r.dig.toFixed(1)+'%</td>'+
+      '<td class="r"><span class="'+varClass(r.dvar)+'">'+varStr(r.dvar)+'</span></td>'+
+      '<td class="r" style="font-family:\'JetBrains Mono\',monospace;color:#a78bfa;">'+r.ksk.toFixed(1)+'%</td>'+
+      '<td class="r"><span class="'+varClass(r.kvar)+'">'+varStr(r.kvar)+'</span></td>'+
+    '</tr>';
+  });
+  inner += '</tbody></table>';
+  card.innerHTML = inner;
+  pg.appendChild(card);
+});
+</script>
+</body>
+</html>
